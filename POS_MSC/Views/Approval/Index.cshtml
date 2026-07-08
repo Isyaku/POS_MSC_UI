@@ -1,0 +1,119 @@
+﻿@model List<UploadModel>
+
+@{
+    ViewData["Title"] = "Upload List";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        <h5>@TempData["SuccessMessage"]</h5>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        <h6>@TempData["ErrorMessage"]</h6>
+    </div>
+}
+
+@if (Model != null && Model.Any())
+{
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Upload List</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-primary table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Upload By</th>
+                                    <th>Amount</th>
+                                    <th>Upload Date</th>
+                                    <th>Credit Account</th>
+                                    <th>Collection Account</th>
+                                    <th>View</th>
+                                    <th>Approval</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.StaffID</td>
+                                        <td class="amount">@item.TotalAmount</td>
+                                        <td>@item.UploadDate</td>
+                                        <td>@item.CreditAccount</td>
+                                        <td>@item.TransientAccount</td>
+                                        <td>
+                                            <a class="btn btn-info btn-sm" asp-controller="Approval" asp-action="ViewList" asp-route-uploadID="@item.ID">View</a>
+
+                                        </td>
+                                        <td colspan="2">
+                                            <form asp-controller="Approval" asp-action="HandleApproval" method="post" onsubmit="encryptDetails(event)">
+                                                <input type="hidden" name="uploadID" value="@item.ID" />
+                                                <textarea id="comment-@item.ID" name="comment" class="form-control" placeholder="Enter comment...">@item.Comment</textarea>
+                                                <input type="hidden" id="action-@item.ID" name="action" /> <!-- hidden field for encrypted action -->
+                                                <div class="mt-1">
+                                                    <button type="button" class="btn btn-success btn-sm" onclick="setActionAndSubmit(this, 'Approve')">Approve</button>
+                                                    <button type="button" class="btn btn-danger btn-sm" onclick="setActionAndSubmit(this, 'Reject')">Reject</button>
+                                                </div>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <h5>No items found.</h5>
+    </div>
+}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.0.0/jsencrypt.min.js"></script>
+
+<script>
+    document.querySelectorAll(".amount").forEach(function(cell) {
+        let value = parseFloat(cell.textContent);
+        if (!isNaN(value)) {
+            cell.textContent = value.toLocaleString('en-US');
+        }
+    });
+
+    const publicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDNfQdJ5YUXLBU52eg4XcwL64vxg68ugD68sQ8GZnZTsBa5kp6vSDOTj2aTa/zu0FyETMOB+vvPmJyABK1/0xU+FHcVyRn9YZFjSJ9MfhuQ8W2kyaicfvnmtwxKyzOCuC5UPIyN6LOgSEW+TJQVHfQvJc5KrKctiRkF+LZnz87TUwIDAQAB";
+
+    function encryptTextWithPublicKey(text) {
+        const encryptor = new JSEncrypt();
+        encryptor.setPublicKey(publicKey);
+        return encryptor.encrypt(text);
+    }
+
+    function setActionAndSubmit(button, actionValue) {
+        const form = button.closest("form");
+        const commentField = form.querySelector("textarea[name='comment']");
+        const hiddenActionField = form.querySelector("input[name='action']");
+
+        const encryptedComment = encryptTextWithPublicKey(commentField.value);
+        const encryptedAction = encryptTextWithPublicKey(actionValue);
+
+        if (encryptedComment && encryptedAction) {
+            commentField.value = encryptedComment;
+            hiddenActionField.value = encryptedAction;
+            form.submit();
+        } else {
+            alert("Encryption failed!");
+        }
+    }
+    
+</script>

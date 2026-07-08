@@ -1,0 +1,113 @@
+﻿@model ViewListModel
+
+@{
+    ViewData["Title"] = "Record List";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header">
+                <a class="btn btn-danger btn-sm" asp-controller="Approval" asp-action="Index">Back</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@if (Model.Settlements != null && Model.Settlements.Any())
+{
+    int serialNumber = 1;
+
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Record List</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-primary table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>SN</th>
+                                    <th>CompanyCode</th>
+                                    <th>BranchCode</th>
+                                    <th>Currency</th>
+                                    <th>GLCode</th>
+                                    <th>CIFNO</th>
+                                    <th>Serial</th>
+                                    <th>CVAmount</th>
+                                    <th>FCAmount</th>
+                                    <th>Rate</th>
+                                    <th>ValueDate</th>
+                                    <th>Description</th>
+                                    <th>TRXCode</th>
+                                    <th>JVType</th>
+                                    <th>TrxDate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Settlements)
+                                {
+                                    <tr>
+                                        <td>@serialNumber</td>
+                                        <td>@item.CompanyCode</td>
+                                        <td>@item.BranchCode</td>
+                                        <td>@item.Currency</td>
+                                        <td>@item.GLCode</td>
+                                        <td>@item.CIFNO</td>
+                                        <td>@item.Serial</td>
+                                        <td>@item.CVAmount</td>
+                                        <td>@item.FCAmount</td>
+                                        <td>@item.Rate</td>
+                                        <td>@item.ValueDate</td>
+                                        <td>@item.Description</td>
+                                        <td>@item.TRXCode</td>
+                                        <td>@item.JVType</td>
+                                        <td>@item.TrateDate</td>
+                                    </tr>
+                                    serialNumber++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>      
+            <div class="card">
+                <div class="card-body text-center">
+                    <span class="fw-bold d-block">Count: @Model.Count</span>
+                    <span id="amount" class="fw-bold d-block">Sum: @Model.Sum</span>
+                    
+                </div>
+                <button onclick="scrollToTop()" class="btn btn-primary position-fixed bottom-0 end-0 m-4" title="Back to Top">
+                    ↑ Top
+                </button>
+            </div>
+        </div>
+
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <h5>No items found.</h5>
+    </div>
+}
+
+
+<script>
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    const amountEl = document.getElementById("amount");
+    const rawText = amountEl.textContent.replace("Sum:", "").trim();
+    const value = parseFloat(rawText);
+
+    if (!isNaN(value)) {
+        amountEl.textContent = "Sum: " + value.toLocaleString('en-US');
+    }
+</script>

@@ -1,0 +1,112 @@
+﻿@model LoginViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+
+<div class="authentication-bg min-vh-100">
+    <div class="bg-overlay bg-light"></div>
+    <div class="container">
+        <div class="d-flex flex-column min-vh-100 px-3 pt-4">
+            <div class="row justify-content-center my-auto">
+                <div class="col-md-8 col-lg-6 col-xl-5">                    
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach (var modelState in ViewData.ModelState.Values)
+                                {
+                                    foreach (var error in modelState.Errors)
+                                    {
+                                        <li>@error.ErrorMessage</li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <div class="card">
+                        <div class="card-body p-4">
+                            <div class="row">
+                                <div class="col-4">
+                                    <img src="~/images/jaiz_logo.jpg" alt="" height="100" width="248" class="auth-logo-dark me-start">
+                                </div>
+                                
+                            </div>
+                            
+                            <div class="p-2 mt-4">
+                                @* <form action="index.html"> *@
+                                <form asp-controller="Home" asp-action="Index" method="post" enctype="multipart/form-data" onsubmit="encryptUserDetails(event)">
+
+                                    <div class="mb-3">
+                                        <label class="form-label" for="username">Username</label>
+                                        <div class="position-relative input-custom-icon">
+                                            <input id="txtUsername" asp-for="UserName" class="form-control" type="text" required="" placeholder="Enter username">
+                                            <span class="bx bx-user"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        
+                                        <label class="form-label" for="password-input">Password</label>
+                                        <div class="position-relative auth-pass-inputgroup input-custom-icon">
+                                            <span class="bx bx-lock-alt"></span>
+                                            <input id="txtPassword" asp-for="Password" type="password" class="form-control" required="" placeholder=" Enter password+token">
+                                            <button type="button" class="btn btn-link position-absolute h-100 end-0 top-0" id="password-addon">
+                                                <i class="mdi mdi-eye-outline font-size-18 text-muted"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <button class="btn btn-primary w-100 waves-effect waves-light" type="submit">Log In</button>
+                                    </div>                                   
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div><!-- end col -->
+            </div><!-- end row -->            
+
+        </div>
+    </div><!-- end container -->
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.0.0/jsencrypt.min.js"></script>
+<script>
+
+    const publicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDNfQdJ5YUXLBU52eg4XcwL64vxg68ugD68sQ8GZnZTsBa5kp6vSDOTj2aTa/zu0FyETMOB+vvPmJyABK1/0xU+FHcVyRn9YZFjSJ9MfhuQ8W2kyaicfvnmtwxKyzOCuC5UPIyN6LOgSEW+TJQVHfQvJc5KrKctiRkF+LZnz87TUwIDAQAB";
+
+    function encryptTextWithPublicKey(text) {
+        const encryptor = new JSEncrypt();
+        encryptor.setPublicKey(publicKey);
+        return encryptor.encrypt(text);
+    }
+
+    function encryptUserDetails(event) {
+        event.preventDefault(); // Stop form submission until encryption is done
+
+        const usernameField = document.getElementById('txtUsername');
+        const passwordField = document.getElementById('txtPassword');
+
+        const txtUserName = usernameField.value;
+        const txtPassword = passwordField.value;
+
+        const encryptedUsername = encryptTextWithPublicKey(txtUserName);
+        const encryptedPassword = encryptTextWithPublicKey(txtPassword);
+
+        if (encryptedUsername && encryptedPassword) {
+            usernameField.value = encryptedUsername;
+            passwordField.value = encryptedPassword;
+            event.target.submit(); // Manually submit the form once encryption is complete
+        } else {
+            alert('Encryption failed');
+        }
+    }
+</script>

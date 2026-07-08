@@ -1,0 +1,78 @@
+﻿@model List<UploadModel>
+
+@{
+    ViewData["Title"] = "Rejected List";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        <h5>@TempData["SuccessMessage"]</h5>
+    </div>
+}
+
+@if (Model != null && Model.Any())
+{
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Approved List</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-primary table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Upload Date</th>
+                                    <th>Amount</th>
+                                    <th>Credit Account</th>
+                                    <th>Collection Account</th>
+                                    <th>View</th>
+                                    <th>Download</th>
+                                    <th>Comment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.UploadDate</td>
+                                        <td class="amount">@item.TotalAmount</td>
+                                        <td>@item.CreditAccount</td>
+                                        <td>@item.TransientAccount</td>
+                                        <td>
+                                            <a class="btn btn-info btn-sm" asp-controller="Upload" asp-action="ViewList" asp-route-uploadID="@item.ID">View</a>
+                                        </td>
+                                        <td>
+                                            <a class="btn btn-success btn-sm" asp-controller="Upload" asp-action="DownloadGenex" asp-route-uploadID="@item.ID">Download Genex</a>
+                                        </td>
+                                        <td>@item.Comment</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <h5>No items found.</h5>
+    </div>
+}
+
+<script>
+    document.querySelectorAll(".amount").forEach(function(cell) {
+        let value = parseFloat(cell.textContent);
+        if (!isNaN(value)) {
+            cell.textContent = value.toLocaleString('en-US');
+        }
+    });
+</script>
